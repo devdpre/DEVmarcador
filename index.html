@@ -8,9 +8,8 @@
     <!-- Importamos A-Frame -->
     <script src="https://aframe.io/releases/1.4.2/aframe.min.js"></script>
     
-    <!-- Importamos AR.js para A-Frame -->
-    <!-- Nota: Usamos la versión de AR.js que soporta marcadores -->
-    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar.js"></script>
+    <!-- Importamos AR.js para A-Frame con soporte NFT (Image Tracking) -->
+    <script src="https://raw.githack.com/AR-js-org/AR.js/master/aframe/build/aframe-ar-nft.js"></script>
     
     <!-- Opcional: A-Frame Extras para reproducir animaciones si el modelo GLB las tiene -->
     <script src="https://cdn.jsdelivr.net/gh/c-base/aframe-extras@7.0.0/dist/aframe-extras.min.js"></script>
@@ -29,7 +28,7 @@
             left: 10px;
             z-index: 10;
             color: white;
-            background: rgba(0,0,0,0.5);
+            background: rgba(0,0,0,0.7);
             padding: 10px;
             border-radius: 5px;
             pointer-events: none; /* Para no interferir con toques en la pantalla */
@@ -40,61 +39,50 @@
 
     <div id="ui-container">
         <h3>Experiencia AR</h3>
-        <p>Apunta la cámara al marcador (logoDEV).</p>
+        <p>Apunta la cámara al <b>logoDEV original</b> (sin marco).</p>
+        <p style="font-size: 13px; color: #ffeb3b;">Cargando rastreador...<br>Puede tardar unos segundos la primera vez.</p>
     </div>
 
     <!-- 
-      Configuramos la escena de A-Frame.
-      embedded: permite que la escena se muestre dentro de la página normal.
-      arjs: configuración específica de AR.js.
-        - sourceType: webcam (usar la cámara del dispositivo)
-        - debugUIEnabled: false (oculta información de depuración en pantalla)
-        - detectionMode: mono (modo de detección estándar)
+      Configuramos la escena de A-Frame para Image Tracking (NFT).
     -->
     <a-scene 
         embedded 
-        arjs="sourceType: webcam; debugUIEnabled: false; detectionMode: mono_and_matrix; matrixCodeType: 3x3;"
+        arjs="trackingMethod: best; sourceType: webcam; debugUIEnabled: false;"
         renderer="logarithmicDepthBuffer: true; colorManagement: true;"
         vr-mode-ui="enabled: false">
         
         <a-assets>
-            <!-- 
-              Cargamos el modelo 3D. 
-              Asegúrate de que la ruta ("escudo.glb") coincida con la ubicación en tu repositorio.
-              Si está en una carpeta, sería ej: "assets/escudo.glb"
-            -->
             <a-asset-item id="modeloEscudo" src="escudo.glb"></a-asset-item>
         </a-assets>
 
         <!-- 
-          Configuramos el marcador.
-          type="pattern": indica que usaremos un archivo de patrón (.patt).
-          url: la ruta a tu archivo .patt generado. (Ajusta la ruta si es necesario).
+          Configuramos el marcador NFT.
+          url: la ruta a los archivos generados (SIN extensión).
+          Asegúrate de que los archivos estén junto al index.html
         -->
-        <a-marker type="img" url="logoDEV.png">
+        <a-nft
+            type="nft"
+            url="logoDEV"
+            smooth="true"
+            smoothCount="10"
+            smoothTolerance=".01"
+            smoothThreshold="5">
             
             <!-- 
-              El modelo que aparecerá sobre el marcador.
-              gltf-model: referencia al ID del modelo en <a-assets>.
-              position: ajusta la posición inicial (x, y, z) relativa al marcador.
-              scale: ajusta el tamaño del modelo. Si se ve muy grande o pequeño, cambia estos valores.
-              rotation: rota el modelo si no está orientado correctamente (ej: "-90 0 0").
-              animation-mixer: (de aframe-extras) reproduce todas las animaciones del GLB si las tiene.
+              Caja de diagnóstico.
+              NOTA SOBRE LA ESCALA: En Image Tracking (NFT) la escala requerida
+              suele ser 50 o 100 veces MÁS GRANDE que en marcadores normales.
             -->
+            <a-box position="0 0 0" scale="50 50 50" color="red" opacity="0.5"></a-box>
+
+            <!-- Tu Modelo GLB -->
             <a-entity 
                 gltf-model="#modeloEscudo" 
                 position="0 0 0" 
-                scale="1 1 1" 
+                scale="50 50 50" 
                 rotation="-90 0 0"
                 animation-mixer>
             </a-entity>
             
-        </a-marker>
-
-        <!-- Cámara necesaria para AR.js -->
-        <a-entity camera></a-entity>
-
-    </a-scene>
-
-</body>
-</html>
+        </a-nft>
